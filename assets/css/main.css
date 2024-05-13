@@ -1,0 +1,100 @@
+html {
+  font-family: "Ubuntu Sans", sans-serif !important;
+}
+.text-h2 {
+  font-family: "Ubuntu Sans", sans-serif !important;
+}
+
+.hero-section {
+  position: relative;
+  background: rgb(199, 217, 169);
+  background: linear-gradient(
+      90deg,
+      rgb(72 112 6 / 61%) 0%,
+      rgba(199, 217, 169, 0.61) 61%
+    ),
+    url(/_nuxt/assets/images/hero-pic.jpg);
+  background-size: cover;
+  width: 100vw;
+  height: 100vh;
+}
+.hero-caption {
+  font-size: 146px;
+  font-weight: 700;
+  position: relative;
+  color: rgb(255 255 255);
+}
+
+.hero-card {
+  z-index: 3 !important;
+  overflow: unset !important;
+  border-radius: 10px 0px 0px 10px !important;
+  position: fixed !important;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgb(255 255 255 / 81%) !important;
+  box-shadow: unset !important;
+}
+
+.clip-circle.top {
+  top: -30px;
+}
+.clip-circle.right {
+  right: 0;
+}
+.clip-circle.bottom {
+  top: 100%;
+}
+
+.clip-circle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+}
+
+@keyframes sub-highlighting {
+  0% {
+    width: 5%;
+    opacity: 0.25;
+  }
+  50% {
+    width: 10%;
+    opacity: 1;
+  }
+  100% {
+    width: 5%;
+    opacity: 0.25;
+  }
+}
+.hero-subtitle,
+.hero-subtitle .v-list-item-title {
+  position: relative;
+  font-size: 35px !important;
+  color: rgb(255 253 248) !important;
+  font-weight: bold !important;
+  text-transform: none !important;
+}
+
+.hero-subtitle::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  transform: translateY(-50%);
+  left: -20px;
+  height: 6px;
+  animation-name: sub-highlighting;
+  animation-iteration-count: infinite;
+  animation-duration: 6s;
+  transition: all 2s ease;
+  animation-direction: initial;
+  background: rgba(217, 255, 0, 0.781);
+}
+
+.modal-header {
+  background: rgb(224 237 230) !important;
+}
+
+.v-main {
+  background: rgb(209,122,122);
+  background: linear-gradient(133deg, rgba(209,122,122,0.25253851540616246) 0%, rgba(248,251,241,1) 28%, rgba(248,251,241,1) 42%, rgba(248,251,241,0.7707457983193278) 64%, rgba(209,122,122,0.23853291316526615) 99%);}
