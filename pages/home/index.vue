@@ -1,6 +1,6 @@
 <template>
   <v-container class="h-100">
-    <template v-if="store.hasGroup">Tarifler</template>
+    <template v-if="store.hasGroup"><RecipeList :recipes="recipes"></RecipeList></template>
     <template v-else>
       <div class="h-100 d-flex justify-center align-center flex-column">
         <v-btn prepend-icon="mdi-plus" class="ma-2 d-flex">
@@ -24,5 +24,6 @@
 import { useAppStore } from "../stores/index";
 
 const store = useAppStore();
+const { data :recipes, error } = await useAsyncData('recipes', () => store.getRecipes())
 
 </script>

@@ -34,7 +34,7 @@
           </v-col>
 
           <v-col cols="12" md="8">
-            <v-sheet min-height="70vh" rounded="lg" height="1">
+            <v-sheet min-height="100vh" rounded="lg" height="1">
               <slot></slot>
             </v-sheet>
           </v-col>

@@ -96,5 +96,33 @@ html {
 }
 
 .v-main {
-  background: rgb(209,122,122);
-  background: linear-gradient(133deg, rgba(209,122,122,0.25253851540616246) 0%, rgba(248,251,241,1) 28%, rgba(248,251,241,1) 42%, rgba(248,251,241,0.7707457983193278) 64%, rgba(209,122,122,0.23853291316526615) 99%);}
+  background: rgb(209, 122, 122);
+  background: linear-gradient(
+    133deg,
+    rgba(209, 122, 122, 0.25253851540616246) 0%,
+    rgba(248, 251, 241, 1) 28%,
+    rgba(248, 251, 241, 1) 42%,
+    rgba(248, 251, 241, 0.7707457983193278) 64%,
+    rgba(209, 122, 122, 0.23853291316526615) 99%
+  );
+}
+.recipe-card .recipe-img{
+  transition:filter .3s;
+}
+.recipe-card:hover .recipe-img {
+  filter: blur(2px) ;
+}
+.recipe-card:hover .whatsapp-btn{
+  left: 50%;
+  transform: translate(-50% , -50%);
+
+}
+.whatsapp-btn {
+  position: absolute !important;
+  left: -50%;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all .3s;
+  transition-property: all !important;
+  z-index:2
+}
