@@ -9,17 +9,54 @@
 
       <v-spacer></v-spacer>
 
-      <v-tabs color="grey-darken-2" centered>
-        <v-tab v-for="link in links" :key="link" :text="link"></v-tab>
-      </v-tabs>
+      <nav>
+        <svg
+          class="position-absolute top-0"
+          style="
+            width: 35px;
+            height: 35px;
+            left: 100%;
+            transform: rotate(180deg);
+          "
+          viewBox="0 0 100 100"
+        >
+          <path
+            d="M0,100Q100,100,100,0q0-91.00364,0,100h-100Z"
+            fill="rgba(248, 251, 241, 1) "
+            stroke-width="0.6"
+          ></path>
+        </svg>
+
+        <NuxtLink to="/home" class="menu-item" activeClass="router-link-active">
+          Anasayfa
+        </NuxtLink>
+        <NuxtLink
+          to="/admin/recipe/new"
+          class="menu-item"
+          activeClass="router-link-active"
+        >
+          Yeni Tarif Ekle
+        </NuxtLink>
+        <NuxtLink class="menu-item" activeClass="router-link-active">
+          Profil
+        </NuxtLink>
+        <svg
+          class="position-absolute top-0"
+          style="width: 35px; height: 35px; right: 100%;transform:rotate(275deg);"
+          viewBox="0 0 100 100"
+        >
+          <path
+            d="M0,100Q100,100,100,0q0-91.00364,0,100h-100Z"
+            fill="rgba(248, 251, 241, 1) "
+            stroke-width="0.6"
+          ></path>
+        </svg>
+      </nav>
+
       <v-spacer></v-spacer>
 
       <v-avatar class="hidden-sm-and-down" color="grey-darken-1" size="32">
-        <v-img
-          v-if="user"
-          alt="Avatar"
-          :src="user.photoURL"
-        ></v-img>
+        <v-img v-if="user" alt="Avatar" :src="user.photoURL"></v-img>
       </v-avatar>
     </v-app-bar>
 
@@ -56,6 +93,6 @@ import EmptyGroup from "../components/EmptyGroup.vue";
 import { useAppStore } from "../stores/index";
 
 const store = useAppStore();
-const links = ["Dashboard", "Messages", "Profile", "Updates"];
+const links = ["Anasayfa", "Yeni Tarif Ekle", "Profil"];
 const user = useCurrentUser();
 </script>

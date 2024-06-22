@@ -1,25 +1,33 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import api_key from "./api_key.js"
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+import api_key from "./api_key.js";
 
 export default defineNuxtConfig({
-  build: {
-    transpile: ['vuetify'],
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        activeClass: 'router-link-active'
+      }
+    }
   },
-  app:{
+  build: {
+    transpile: ["vuetify"],
+  },
+  app: {
     head: {
       link: [
-        { rel: 'stylesheet',href:"https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap" }
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap",
+        },
       ],
-        script:[{  src:"https://accounts.google.com/gsi/client"
-}],
+      script: [{ src: "https://accounts.google.com/gsi/client" }],
     },
   },
 
-  css: ['~/assets/css/main.css' ]
-,
-
+  css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
+  plugins:['~/plugins/emptyRecipe.js'],
   modules: [
     "@pinia/nuxt",
     (_options, nuxt) => {
@@ -28,14 +36,14 @@ export default defineNuxtConfig({
         config.plugins.push(vuetify({ autoImport: true }));
       });
     },
-    'nuxt-vuefire',
+    "nuxt-vuefire",
   ],
   // @ts-expect-error
   vuefire: {
     config: api_key,
     auth: {
       enabled: true,
-      sessionCookie: true // AUTHENTİCATİON BOTH WORKS FOR BACKEND AND FRONTEND
+      sessionCookie: true, // AUTHENTİCATİON BOTH WORKS FOR BACKEND AND FRONTEND
     },
   },
   vite: {
@@ -44,5 +52,5 @@ export default defineNuxtConfig({
         transformAssetUrls,
       },
     },
-  }
+  },
 });

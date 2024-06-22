@@ -13,8 +13,13 @@
 
     <template v-slot:default>
       <v-card>
-        <v-toolbar title="Sosyal Medya Hesaplarınızla Oturum Açın" class="modal-header"></v-toolbar>
-        <v-card-text class="text-subtitle pt-12"> Google veya Facebook hesabınızı kullanarak oturum açabilirsiniz. </v-card-text>
+        <v-toolbar
+          title="Sosyal Medya Hesaplarınızla Oturum Açın"
+          class="modal-header"
+        ></v-toolbar>
+        <v-card-text class="text-subtitle pt-12">
+          Google veya Facebook hesabınızı kullanarak oturum açabilirsiniz.
+        </v-card-text>
         <v-card-actions class="justify-center pb-6">
           <button @click="signInPopUp" class="login-with-google-btn">
             Google ile giriş yap
@@ -26,18 +31,43 @@
 </template>
 <script>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import "@/assets/css/google-button.scss"
+import "@/assets/css/google-button.scss";
 export const provider = new GoogleAuthProvider();
 </script>
 
 <script setup>
+import { useAppStore } from "../stores/index";
+
+
+import { useCollection } from "vuefire";
+import { collection, addDoc, updateDoc, getDoc, doc , getFirestore, setDoc} from "firebase/firestore";
+
+
+const db=getFirestore();
+
+const users = collection(db, "users");
+
 const errorCode = ref(null);
 const errorMessage = ref(null);
 const auth = useFirebaseAuth();
 const user = useCurrentUser();
 async function signInPopUp() {
   try {
-    await signInWithPopup(auth, provider);
+    let data = await signInWithPopup(auth, provider);
+    let dbUser = {
+      username: data.user.displayName,
+      email: data.user.email,
+      phone: data.user.phoneNumber,
+      groupIds: [],
+    };
+
+    let userRef = doc(db, "users", user.value.uid);
+    let userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      await updateDoc(userRef, dbUser);
+    } else {
+      await setDoc(userRef,dbUser)
+    }
 
     return navigateTo({
       path: "/home",

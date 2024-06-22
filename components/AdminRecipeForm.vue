@@ -42,6 +42,8 @@
             chips
             label="Kategori"
             :items="categories"
+            item-title="name"
+            item-value="id"
             v-model="recipe.category"
             variant="outlined"
           ></v-select>
@@ -65,7 +67,12 @@
         </v-col>
         <v-col cols="12" md="12">
           <h2>Malzemeler</h2>
-          <p class="text-subtitle-2">Toplam Malzeme : {{ recipe.ingredients.length }}</p>
+          <p class="text-subtitle-2">
+            Toplam Malzeme :
+            {{
+              recipe.ingredients.length > 0 ? recipe.ingredients.length : "0"
+            }}
+          </p>
         </v-col>
         <v-col cols="12" md="12">
           <v-table height="300px" fixed-header>
@@ -84,12 +91,12 @@
                 </th>
               </tr>
             </thead>
-            <tbody class="mt-4">
-              <tr v-for="item in recipe.ingredients" :key="item.id">
+            <tbody class="mt-4" v-if="hasIngredients">
+              <tr  v-for="item in recipe.ingredients" :key="item.id">
                 <td width="30%" class="pa-3">
                   <v-text-field
                     :autofocus="item.autofocus"
-                    :id="item.id"
+                    :id="item.id.toString()"
                     label="Malzeme"
                     hide-details
                     required
@@ -122,14 +129,17 @@
                     @click="deleteIngredient(item.id)"
                     color="red-lighten-3"
                     variant="outlined"
-                   
                     icon="mdi-trash-can"
                   >
                   </v-btn>
                 </td>
               </tr>
+          
             </tbody>
           </v-table>
+        </v-col>
+        <v-col cols="12" class="d-flex justify-center">
+          <v-btn color="success" @click="store.addRecipe(recipe)">Kaydet</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -137,70 +147,56 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
+import { ref, nextTick, reactive } from "vue";
+import { useAppStore } from "../stores/index";
 
-const categories = ref(["Çorba", "Ana Yemek", "Salata", "Tatlı"]);
-const portions = ref(["1-2", "4-6", "8-10"]);
-const units = ref([
-  "Su bardağı",
-  "Çay bardağı",
-  "kase",
-  "Yemek kaşığı",
-  "Tatlı kaşığı",
-  "Çay Kaşığı",
-  "adet",
-  "gr",
-  "kg",
-  "ml",
-  "l",
-  "tutam",
-  "demet",
-]);
+const store = useAppStore();
+const recipe = ref({});
+const props = defineProps(["recipe"]);
+if (props.recipe) {
+  recipe.value = props.recipe;
+} else {
+  const { $emptyRecipe } = useNuxtApp();
+  recipe.value = reactive({ ...$emptyRecipe })
+ 
+}
+
+const categories = store.categories;
+const portions = store.portions;
+const units = store.units;
+const user = store.user;
+
 const groups = ref([
   { id: 1, name: "Aile Grubu" },
   { id: 2, name: "Arkadaş Grubu" },
   { id: 3, name: "Okul" },
 ]);
-const recipe = ref({
-  id:1,
-  title: "Tarhana Çorbası",
-  ingredients: [
-    { id: 1, measurement: "2", unit: "Yemek kaşığı", type: "Toz tarhana" },
-    {
-      id: 2,
-      measurement: "1",
-      unit: "Yemek kaşığı",
-      type: "Toz tarhana",
-      description: "Su eklendikten sonra ilave edilecek",
-    },
-    { id: 3, measurement: "1", unit: "Yemek kaşığı", type: "Tereyağı" },
-    { id: 4, measurement: "1", unit: "Çay kaşığı", type: "Sıvı yağ" },
-    { id: 5, measurement: "1", unit: "Yemek kaşığı", type: "Salça" },
-    { id: 6, measurement: "5", unit: "Su Bardağı", type: "Sıcak Su" },
-  ],
-  category: "Çorba",
-  image:
-    "https://www.kevserinmutfagi.com/wp-content/uploads/2008/11/tarhana_corbasi2-1.jpg",
-  description: "",
-  portion: "4-6",
-  user_id: 1,
-  username: "yasemin",
-  group_ids: [1, 2, 3],
+if (!recipe.ingredients) {
+  recipe.ingredients = [];
+}
+const hasIngredients = computed(()=>{
+    return recipe.value.ingredients && recipe.value.ingredients.length > 0;
+  
 });
+console.log(hasIngredients.value)
 
 async function addIngredient() {
   const id = Math.floor(Math.random() * 999999);
-  recipe.value.ingredients.push({ autofocus: true, id });
-  await nextTick(); // ui update edildi.
+  recipe.value.ingredients.push({ type: "", autofocus: true, id });
 
+  await nextTick(); // ui update edildi.
+  
   let input = document.getElementById(id);
-  input.scrollIntoView({
+  if(input){
+    input.scrollIntoView({
     behavior: "smooth",
   });
-
-
-}
-function deleteIngredient(id){
-    return recipe.value.ingredients=recipe.value.ingredients.filter(x=>x.id != id )
   }
+}
+
+function deleteIngredient(id) {
+  return (recipe.value.ingredients = recipe.value.ingredients.filter(
+    (x) => x.id != id
+  ));
+}
 </script>
