@@ -1,14 +1,9 @@
 <template>
   <v-dialog width="auto">
     <template v-slot:activator="{ props: activatorProps }">
-      <v-btn
-        class="hero-subtitle ps-0"
-        variant="text"
-        v-bind="activatorProps"
-        text="Üye Ol"
-        block
-        min-width="auto"
-      ></v-btn>
+      <NuxtLink to="/home" class="menu-item " activeClass="router-link-active" v-bind="activatorProps">
+        Üye Ol
+      </NuxtLink>
     </template>
 
     <template v-slot:default>
@@ -36,10 +31,6 @@ export const provider = new GoogleAuthProvider();
 </script>
 
 <script setup>
-import { useAppStore } from "../stores/index";
-
-
-import { useCollection } from "vuefire";
 import { collection, addDoc, updateDoc, getDoc, doc , getFirestore, setDoc} from "firebase/firestore";
 
 
@@ -58,7 +49,6 @@ async function signInPopUp() {
       username: data.user.displayName,
       email: data.user.email,
       phone: data.user.phoneNumber,
-      groupIds: [],
     };
 
     let userRef = doc(db, "users", user.value.uid);
@@ -66,6 +56,7 @@ async function signInPopUp() {
     if (userDoc.exists()) {
       await updateDoc(userRef, dbUser);
     } else {
+      dbUser.groupIds=[];
       await setDoc(userRef,dbUser)
     }
 

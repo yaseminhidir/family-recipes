@@ -3,12 +3,14 @@ import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import api_key from "./api_key.js";
 
 export default defineNuxtConfig({
+  ssr: true,
   experimental: {
+    payloadExtraction: false,
     defaults: {
       nuxtLink: {
-        activeClass: 'router-link-active'
-      }
-    }
+        activeClass: "router-link-active",
+      },
+    },
   },
   build: {
     transpile: ["vuetify"],
@@ -27,7 +29,7 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-  plugins:['~/plugins/emptyRecipe.js'],
+  plugins: ["~/plugins/emptyRecipe.js"],
   modules: [
     "@pinia/nuxt",
     (_options, nuxt) => {
@@ -38,7 +40,6 @@ export default defineNuxtConfig({
     },
     "nuxt-vuefire",
   ],
-  // @ts-expect-error
   vuefire: {
     config: api_key,
     auth: {

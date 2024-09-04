@@ -1,30 +1,23 @@
 <template>
-  <v-container class="h-100">
-    <template v-if="store.hasGroup">
-      <RecipeList :recipes="store.recipes"></RecipeList>
-    </template>
-    <template v-else>
-      <div class="h-100 d-flex justify-center align-center flex-column">
-        <v-btn prepend-icon="mdi-plus" class="ma-2 d-flex">
-          <template v-slot:prepend>
-            <v-icon color="success"></v-icon>
-          </template>
-          Bir Gruba Katıl
-        </v-btn>
-        <v-btn prepend-icon="mdi-account-multiple" class="ma-2 d-flex">
-          <template v-slot:prepend>
-            <v-icon color="success"></v-icon>
-          </template>
-          Yeni Bir Grup Oluştur
-        </v-btn>
-      </div>
-    
-    </template>
+  <v-container>
+    <v-row v-if="user">
+      <v-col cols="12">
+        <h1>Popüler Tarifler</h1>
+      </v-col>
+      <v-col cols="12">
+        <RecipeList :recipes="publicRecipes"></RecipeList>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'hero-section'
+})
 import { useAppStore } from "../stores/index";
+const user = useCurrentUser();
 
 const store = useAppStore();
+const publicRecipes = store.fetchPublicRecipes();
 </script>

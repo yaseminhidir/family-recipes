@@ -1,6 +1,5 @@
 <template>
   <v-form>
-    <v-container>
       <v-row>
         <v-col cols="12" md="3">
           <v-text-field
@@ -17,7 +16,6 @@
             clearable
             label="Gruplar"
             :items="groups"
-            item-value="id"
             item-title="name"
             v-model="recipe.group_ids"
             multiple
@@ -25,13 +23,13 @@
           >
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index < 1">
-                <span>{{ item.title }}</span>
+                <span>{{ item.name }}</span>
               </v-chip>
               <span
                 v-if="index === 2"
                 class="text-grey text-caption align-self-center"
               >
-                (+{{ recipe.group_ids.length - 1 }} others)
+                (+{{ user.groupIds.length - 1 }} others)
               </span>
             </template>
           </v-select>
@@ -43,7 +41,7 @@
             label="Kategori"
             :items="categories"
             item-title="name"
-            item-value="id"
+            return-object
             v-model="recipe.category"
             variant="outlined"
           ></v-select>
@@ -57,6 +55,11 @@
             v-model="recipe.portion"
             variant="outlined"
           ></v-select>
+        </v-col>
+        <v-col cols="12">
+          <v-radio-group  inline v-model="recipe.visibility">
+            <v-radio  color="success" v-for="item in visibility" :key="item.id" :label="item.name" :value="item.id"></v-radio>
+          </v-radio-group>
         </v-col>
         <v-col cols="12" md="12">
           <v-textarea
@@ -139,10 +142,9 @@
           </v-table>
         </v-col>
         <v-col cols="12" class="d-flex justify-center">
-          <v-btn color="success" @click="store.addRecipe(recipe)">Kaydet</v-btn>
+          <v-btn color="success" @click="addRecipe">Kaydet</v-btn>
         </v-col>
       </v-row>
-    </v-container>
   </v-form>
 </template>
 
@@ -152,7 +154,8 @@ import { useAppStore } from "../stores/index";
 
 const store = useAppStore();
 const recipe = ref({});
-const props = defineProps(["recipe"]);
+const props = defineProps(["recipe" ]);
+
 if (props.recipe) {
   recipe.value = props.recipe;
 } else {
@@ -164,21 +167,20 @@ if (props.recipe) {
 const categories = store.categories;
 const portions = store.portions;
 const units = store.units;
+const visibility = store.visibility;
 const user = store.user;
+const groups = await store.fetchGroupById();
 
-const groups = ref([
-  { id: 1, name: "Aile Grubu" },
-  { id: 2, name: "Arkadaş Grubu" },
-  { id: 3, name: "Okul" },
-]);
+const emit= defineEmits(["setIsEdit"])
+
 if (!recipe.ingredients) {
   recipe.ingredients = [];
 }
+
 const hasIngredients = computed(()=>{
     return recipe.value.ingredients && recipe.value.ingredients.length > 0;
   
 });
-console.log(hasIngredients.value)
 
 async function addIngredient() {
   const id = Math.floor(Math.random() * 999999);
@@ -193,7 +195,10 @@ async function addIngredient() {
   });
   }
 }
-
+function addRecipe(){
+  store.addRecipe(recipe.value);
+  emit("setIsEdit", false);
+}
 function deleteIngredient(id) {
   return (recipe.value.ingredients = recipe.value.ingredients.filter(
     (x) => x.id != id

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --inspect",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -19,6 +19,7 @@
     "nuxt": "^3.11.2",
     "nuxt-vuefire": "^1.0.2",
     "pinia": "^2.1.7",
+    "uuidv4": "^6.2.13",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"
   },

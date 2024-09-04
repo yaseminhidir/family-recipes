@@ -23,4 +23,5 @@ logs
 .env.*
 !.env.example
 recipes-8b8ca-firebase-adminsdk-hbtng-3f69a6b0ac.json
+service-account.json
 api_key.js
