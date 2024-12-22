@@ -20,7 +20,7 @@ export default defineNuxtConfig({
       link: [
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swa",
         },
       ],
       script: [{ src: "https://accounts.google.com/gsi/client" }],
@@ -32,14 +32,22 @@ export default defineNuxtConfig({
   plugins: ["~/plugins/emptyRecipe.js"],
   modules: [
     "@pinia/nuxt",
+    "@prisma/nuxt",
     (_options, nuxt) => {
       nuxt.hooks.hook("vite:extendConfig", (config) => {
         // @ts-expect-error
-        config.plugins.push(vuetify({ autoImport: true }));
+        config.plugins.push(
+          vuetify(
+            { autoImport: true },
+           
+          )
+        );
       });
     },
     "nuxt-vuefire",
+    "nuxt-auth-utils"
   ],
+
   vuefire: {
     config: api_key,
     auth: {

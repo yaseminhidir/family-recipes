@@ -1,15 +1,17 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const emptyRecipe = {
     id: "",
-    category: "",
+    categoryId: null,
     description: "",
-    group_ids: [1, 2, 3],
+    groupIds: [],
     image: "",
     ingredients: [],
-    portion: "",
-    tite: "",
+    portionId: null,
+    title: "",
     user: "",
     username: "",
+    visibility:true,
+    levelId:null,
   };
   return {
     provide: {

@@ -10,7 +10,6 @@
         class="mx-auto mb-3"
         max-width="344"
         rel="noopener"
-        :subtitle="'Kişi sayısı ' + groups.length"
         :title="group.name"
       ></v-card>
     </nuxt-link>

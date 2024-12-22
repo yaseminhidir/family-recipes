@@ -3,7 +3,9 @@
     <v-layout>
       <NavBar> </NavBar>
       <v-main>
-        <slot></slot>
+        <v-container class="mt-5">
+          <slot></slot>
+        </v-container>
       </v-main>
     </v-layout>
   </v-app>
@@ -14,5 +16,4 @@ definePageMeta({
   middleware: "check-login",
 });
 
-const user = useCurrentUser();
 </script>

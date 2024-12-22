@@ -1,12 +1,7 @@
-html {
-  font-family: "Ubuntu Sans", sans-serif !important;
+html, body {
+  font-family: "Raleway", serif !important;
 }
-.text-h2 {
-  font-family: "Ubuntu Sans", sans-serif !important;
-}
-.v-app-bar.v-toolbar {
-  background: transparent !important;
-}
+
 @media (min-width: 1920px) {
   .v-container {
       max-width: 1320px !important;
@@ -16,20 +11,32 @@ html {
   background-color: rgb(255 255 255 / 51%) !important;
   border: 1px solid rgb(173 247 49 / 61%) !important;
 } */
+.logo {
+
+  font-size: 30px !important;
+  color: #004D40;
+  letter-spacing: 2px;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+.logo span {
+  color: rgb(72 112 6 );
+}
 .nuxt-link{
   text-decoration: none;
 }
 a:-webkit-any-link {
   color:#004D40;
 }
+
 nav.alternate-nav {
   position: relative;
-  background-color: rgba(248, 251, 241, 1);
+  background-color: transparent;
   height: 100%;
   display: flex;
   align-items: center;
   padding: 20px 20px;
-  border-radius: 0 0 20px 20px;
 }
 .card-link {
 text-decoration: none;
@@ -96,22 +103,6 @@ text-decoration: none;
   box-shadow: unset !important;
 }
 
-.clip-circle.top {
-  top: -30px;
-}
-.clip-circle.right {
-  right: 0;
-}
-.clip-circle.bottom {
-  top: 100%;
-}
-
-.clip-circle {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-}
-
 @keyframes sub-highlighting {
   0% {
     width: 5%;
@@ -166,9 +157,7 @@ text-decoration: none;
   );
 } */
 
-.recipe-card:hover  {
-  outline:1px solid rgba(217, 255, 0, 0.781)
-}
+
 .active-group .v-card--variant-elevated, .v-card--variant-flat{
   background-color:  #6D9886 !important; color: white !important;
 }

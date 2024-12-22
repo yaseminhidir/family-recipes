@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id       Int        @id @default(autoincrement())
+  email    String     @unique
+  firstName     String?
+  lastName   String?
+  passwordHash String?
+  groups   GroupUser[]   
+}
+
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  image    String
+  recipes  Recipe[]   // One category can have multiple recipes
+}
+
+model Group {
+  id       Int        @id @default(autoincrement())
+  name     String
+  users   GroupUser[]
+  invites  InviteTokens[]
+  recipes  GroupRecipe[]
+}
+
+model InviteTokens {
+  id          Int        @id @default(autoincrement())
+  group       Group     @relation(fields: [groupId], references: [id])
+  groupId     Int
+  inviteToken String
+  expireDate  DateTime
+}
+
+model Portion {
+  id       Int        @id @default(autoincrement())
+  name     String
+  recipes  Recipe[]   // One portion can apply to multiple recipes
+}
+
+model Unit {
+  id       Int        @id @default(autoincrement())
+  name         String       @unique
+  ingredients Ingredient[]
+}
+
+model Level {
+  id       Int        @id @default(autoincrement())
+  name     String
+  recipes  Recipe[]   // One level can apply to multiple recipes
+}
+
+model Ingredient {
+  id           Int        @id @default(autoincrement())
+  autofocus    Boolean    @default(true)
+  measurement  String
+  type         String
+  unit         Unit      @relation(fields: [unitId], references: [id])
+  unitId       Int 
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  recipeId     Int
+}
+
+model Recipe {
+  id           Int          @id @default(autoincrement())
+  title        String
+  description  String
+  image        String
+  userId       Int
+  category     Category     @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  portion      Portion      @relation(fields: [portionId], references: [id])
+  portionId    Int
+  visibility   Boolean      @default(true)
+  level        Level        @relation(fields: [levelId], references: [id])
+  levelId      Int
+  createdAt    DateTime     @default(now()) 
+  ingredients   Ingredient[]
+  groups       GroupRecipe[]
+}
+
+model GroupRecipe {
+  groupId  Int
+  recipeId Int
+  group    Group  @relation(fields: [groupId], references: [id])
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  @@id([groupId, recipeId]) // Composite primary key
+}
+
+model GroupUser {
+  groupId  Int
+  userId   Int
+  
+  group    Group   @relation(fields: [groupId], references: [id])
+  user     User    @relation(fields: [userId], references: [id])
+    @@id([groupId, userId]) // Composite primary key
+}

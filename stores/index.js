@@ -10,18 +10,19 @@ import {
   updateDoc,
   getDocs,
   documentId,
+  deleteDoc,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { useCollection } from "vuefire";
 import { useRouter } from "vue-router";
 
 export const useAppStore = defineStore("websiteStore", () => {
+  const { loggedIn, user, clear: logout, fetch: fetchUser } = useUserSession();
   const router = useRouter();
 
   const db = getFirestore();
-  const authUser = useCurrentUser();
+  const authUser = user;
 
-  const portions = ref(["1-2", "4-6", "8-10"]);
   const units = ref([
     "Su bardağı",
     "Çay bardağı",
@@ -38,140 +39,238 @@ export const useAppStore = defineStore("websiteStore", () => {
     "demet",
   ]);
   const visibility = ref([
-    { id: 1, name: "Herkese Açık" },
-    { id: 2, name: "Sadece Grup Üyeleri" },
+    { value: null, title: "Tümü" },
+    { value: true, title: "Herkese Açık" },
+    { value: false, title: "Sadece Grup Üyeleri" },
   ]);
+  const categories = ref(null);
+  const options = ref(null);
+  async function getOptions() {
+    if (options.value != null) return options;
+    const { data, error } = await useFetch("/api/options");
+    if (error.value) {
+      console.error("Error fetching options:", error.value);
+    } else {
+      options.value = data.value.data;
+    }
+    return options;
+  }
 
   function generateInviteCode() {
     const inviteCode = uuidv4();
     return { inviteCode };
   }
 
-  const user =
-    authUser?.value == null
-      ? null
-      : useDocument(doc(db, "users", authUser.value.uid), {
-          once: true,
-        });
-
   const hasGroup = computed(() => {
     return user?.value != null && user.value.groupIds.length > 0;
   });
 
-  const recipes = useCollection(collection(db, "recipes"), {
-    once: true,
-  });
+  function recipes() {
+    return useCollection(collection(db, "recipes"), {
+      once: true,
+    });
+  }
 
-  function fetchPublicRecipes() {
-    const res = query(collection(db, "recipes"), where("visibility", "==", 1));
+  function fetchRecipesByVisibilty(value) {
+    const res = query(
+      collection(db, "recipes"),
+      where("visibility", "==", value)
+    );
     return useCollection(res, { once: true });
   }
 
-  const categories = useCollection(collection(db, "categories"), {
-    once: true,
-  });
-
-  const addRecipe = async (data) => {
-    if (data.id) {
-      const recipeDocRef = doc(db, "recipes", data.id);
-      await setDoc(recipeDocRef, {
-        ...data,
-        category: doc(db, "categories", data.category.id),
-        user: doc(db, "users", authUser.value.uid),
-      });
+  async function getCategories() {
+    if (categories.value != null) return categories;
+    const { data, error } = await useFetch("/api/categories");
+    if (error.value) {
+      console.log("Error fetching categories:", error.value);
     } else {
-      await addDoc(collection(db, "recipes"), {
-        ...data,
-        category: doc(db, "categories", data.category.id),
-        user: doc(db, "users", authUser.value.uid),
+      categories.value = data.value.data;
+    }
+    return categories;
+  }
+
+  async function getCategory(id) {
+    try {
+      const { data, error } = await useFetch(`/api/categories/${id}`);
+      if (error.value) {
+        throw new Error("Error fetching category:", error);
+      }
+      return data.value;
+    } catch (error) {
+      console.error("Error in getCategory service:", error);
+      throw error;
+    }
+  }
+  async function getGroupById(id) {
+    console.log("store grup id", id);
+    try {
+      const { data, error } = await useFetch(`/api/groups/getGroup?id=${id}`);
+      if (error.value) {
+        console.error("Error fetching groups:", error);
+        throw new Error(data.message || "Failed to fetch groups");
+      }
+      console.log("store group", data.value.group);
+      return data.value.group;
+    } catch (error) {
+      console.error("Error in getGroupById service:", error);
+      throw error;
+    }
+  }
+  async function getMyGroups() {
+    try {
+      const { data, error } = await useFetch(`/api/users/getMyGroups`);
+      if (error.value) {
+        console.error("Error fetching groups:", error);
+        throw new Error(data.message || "Failed to fetch groups");
+      }
+      console.log("store group", data.value.groups);
+      return data.value.groups.map((item) => item.group);
+    } catch (error) {
+      console.error("Error in getGroupById service:", error);
+      throw error;
+    }
+  }
+  async function getRecipeById(id) {
+    try {
+      const { data, error } = await useFetch(`/api/recipes/${id}`);
+      if (error.value) {
+        throw new Error("Error fetching recipe:", error);
+      }
+      console.log("GETRecıpe", data.value);
+      data.value.groupIds = data.value.groups.map((x) => x.group.id);
+      data.value.groups = data.value.groups.map((x) => x.group);
+      return data.value;
+    } catch (error) {
+      console.error("Error in getRecipe service:", error);
+      throw error;
+    }
+  }
+  async function saveOrUpdateRecipe(data) {
+    try {
+      const url = data.id
+        ? `/api/recipes/createOrUpdate?${new URLSearchParams({
+            id: data.id,
+          })}`
+        : `/api/recipes/createOrUpdate`;
+      const response = await $fetch(url, {
+        method: "POST",
+        body: { ...data },
       });
+      if (response.success) {
+        return response.recipe;
+      } else {
+        console.error("Error saving/updating recipe:", response.error);
+        throw new Error(response.error);
+      }
+    } catch (error) {
+      console.error("Error in saveOrUpdateRecipe function:", error);
+      throw error;
+    }
+  }
+
+  async function getMyRecipes() {
+    try {
+      const { data, error } = await useFetch("/api/recipes/getMine");
+      if (error.value) {
+        throw new Error("Error getMyRecipes:", error);
+      }
+      if (data.value.success) {
+        return data.value.recipes;
+      }
+    } catch (error) {
+      console.error("Error in getMyRecipes function:", error);
+      throw error;
     }
   };
-
-  async function fetchRecipeById(id) {
-    const res = useDocument(doc(db, "recipes", id));
-    return res.value;
-  }
-
-  function fetchRecipesByGroupId(id) {
-    const groupDocRef = doc(db, "groups", id);
-    const res = query(
-      collection(db, "recipes"),
-      where("group_ids", "array-contains", groupDocRef)
-    );
-    return useCollection(res);
-  }
-
-  async function fetchRecipesByUserId() {
-    const userRef = doc(db, "users", authUser.value.uid);
-
-    const recipesRef = collection(db, "recipes");
-    const q = query(recipesRef, where("user", "==", userRef));
-
-    return useCollection(q);
-  }
 
   const saveGroup = async (data) => {
-    // Group adı
-    // auth user 'a group id kaydedilcek.
-    // gorpuinvites 'a group oluşturan userin tokeni kaydedilcek.
-    // pop up açılcak. Pop up 'ta link olcak.
     try {
-      if (data.id) {
-        const groupDocRef = doc(db, "groups", data.id);
-        await setDoc(groupDocRef, {
-          ...data,
-        });
+      const url = data.id
+        ? `/api/groups/createOrUpdate?${new URLSearchParams({
+            id: data.id,
+          })}`
+        : `/api/groups/createOrUpdate`;
+      const res = await $fetch(url, {
+        method: "POST",
+        body: { ...data },
+      });
+      if (res.success) {
+        return res.group;
       } else {
-        var newGroup = await addDoc(collection(db, "groups"), {
-          ...data,
-        });
-        const user = useDocument(doc(db, "users", authUser.value.uid));
-        await updateDoc(doc(db, "users", authUser.value.uid), {
-          groupIds: [...user.value.groupIds, newGroup.id],
-        });
+        console.error("Error saving/updating group:", res.error);
+        throw new Error(res.error);
       }
-      hasGroup.value = true;
-      router.push(`/group/${data.id || newGroup.id}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Error in saveOrUpdateGroup function:", error);
+      throw error;
     }
   };
 
-  function fetchMembers(groupId) {
-    const res = query(
-      collection(db, "users"),
-      where("groupIds", "array-contains", groupId)
-    );
-    return useCollection(res);
-  }
-
-  const createInviteCode = async () => {
-    const inviteTokenRef = collection(db, "inviteTokens");
-    const token = generateInviteCode();
-    const expireDate = new Date();
-    expireDate.setDate(expireDate.getDate() + 3);
-
-    await addDoc(inviteTokenRef, {
-      token: token.inviteCode,
-      expireDate: expireDate,
-    });
-    const inviteLink = `https://localhost:3000/invitation/${token.inviteCode}`;
-    return inviteLink;
+  const createInviteCode = async (groupId) => {
+    const tokenData = {
+      groupId,
+      inviteToken: generateInviteCode().inviteCode,
+      expireDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    };
+    try {
+      const { data, error } = await useFetch("/api/groups/createInviteToken", {
+        method: "post",
+        body: tokenData,
+      });
+      if (error.value) {
+        throw new Error("Error invite link:", error);
+      }
+      if (data.value.success) {
+        const inviteLink = `http://localhost:3000/invitation/${data.value.newToken.inviteToken}`;
+        return inviteLink;
+      }
+    } catch (error) {
+      console.error("Error in invite code function:");
+      throw error;
+    }
   };
+
   async function isTokenValid(token) {
     try {
-      const inviteTokenRef = collection(db, "inviteTokens");
-      const q = query(inviteTokenRef, where("token", "==", token));
-      const querySnapshot = await getDocs(q);
+      const { data, error } = await useFetch("/api/groups/isTokenValid", {
+        method: "post",
+        body: {token},
+      });
+      if (error.value) {
+        throw new Error("Error isTokenValid link:", error);
+      }
+     return data.value;
+   
+    } catch (error) {
+      console.error("Error in isTokenValid function:");
+      throw error;
+    }
+  }
+  async function joinGroup(token) {
+    try{
+      const {data, error} = await useFetch("/api/groups/joinGroup", {
+        method:"post",
+        body:{token}
+      })
+      return data.value.data
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
+  async function leaveGroup(groupId) {
+    try {
+      const userRef = doc(db, "users", authUser.value.uid);
+      const userSnap = await getDoc(userRef);
 
-      if (!querySnapshot.empty) {
-        const docData = querySnapshot.docs[0].data();
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        let groupIds = userData.groupIds || [];
 
-        const expireDate = docData.expireDate.toDate();
-        const now = new Date();
-
-        if (expireDate > now) {
+        if (groupIds.includes(groupId)) {
+          groupIds = groupIds.filter((id) => id !== groupId);
+          await updateDoc(userRef, { groupIds });
           return true;
         } else {
           return false;
@@ -179,43 +278,52 @@ export const useAppStore = defineStore("websiteStore", () => {
       } else {
         return false;
       }
-    } catch (e) {
-      console.log("Token is not valid:", e);
+    } catch (error) {
       return false;
     }
   }
-  const fetchGroupById = async () => {
-    var q = query(
-      collection(db, "groups"),
-      where("__name__", "in", user.value.groupIds)
-    );
-    var docs = await getDocs(q);
 
-    return docs.docs.map((x) => {
-      return {
-        id: x.id,
-        ...x.data(),
-      };
+  async function register(user) {
+    const res = await $fetch("/api/register", {
+      method: "post",
+      body: user,
     });
-  };
+    fetchUser();
+  }
+  async function login(user) {
+    const res = await $fetch("/api/login", {
+      method: "post",
+      body: user,
+    });
 
+    if (res.success) {
+      fetchUser();
+      router.push("/");
+    }
+    console.log("BODYUSER", res);
+  }
   return {
+    register,
     hasGroup,
     recipes,
-    addRecipe,
-    categories,
-    portions,
+    saveOrUpdateRecipe,
+    getCategory,
+    getOptions,
+    getCategories,
+    getGroupById,
+    getRecipeById,
+    getMyGroups,
     units,
     user,
-    fetchRecipeById,
-    fetchPublicRecipes,
+    logout,
+    login,
+    fetchRecipesByVisibilty,
+    getMyRecipes,
     visibility,
-    fetchRecipesByGroupId,
-    fetchRecipesByUserId,
     saveGroup,
-    fetchGroupById,
-    fetchMembers,
     createInviteCode,
     isTokenValid,
+    joinGroup,
+    leaveGroup,
   };
 });

@@ -2,8 +2,9 @@
   <v-container>
     <v-row >
       <v-col cols="12">
-        <h1>Popüler Tarifler</h1>
+        <h1>Popüler Tarifler {{ store.user }}</h1>
       </v-col>
+      
       <v-col cols="12">
         <RecipeList :recipes="publicRecipes"></RecipeList>
       </v-col>
@@ -16,7 +17,10 @@
 definePageMeta({
   layout: 'hero-section'
 })
+
 import { useAppStore } from "../stores/index";
+
+
 const store = useAppStore();
-const publicRecipes = store.fetchPublicRecipes();
+const publicRecipes = store.fetchRecipesByVisibilty(1);
 </script>

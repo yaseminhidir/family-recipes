@@ -1,14 +1,13 @@
 <template>
-  <v-form>
+  <v-form ref="recipeForm">
       <v-row>
         <v-col cols="12" md="3">
           <v-text-field
-            :counter="10"
             label="Title"
-            hide-details
             v-model="recipe.title"
-            required
             variant="outlined"
+            :rules="[(v) => !!v || 'Başlık zorunlu alan']"
+            required
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
@@ -17,19 +16,22 @@
             label="Gruplar"
             :items="groups"
             item-title="name"
-            v-model="recipe.group_ids"
+            item-value="id"
+            v-model="recipe.groupIds"
             multiple
             variant="outlined"
+            required
+            :rules="[(v) => v.length == 0 ? 'Grup zorunlu alan' : true]"
           >
             <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index < 1">
-                <span>{{ item.name }}</span>
+              <v-chip v-if="index < 3">
+                <span>{{ item.title }}</span>
               </v-chip>
               <span
-                v-if="index === 2"
+                v-if="index === 3"
                 class="text-grey text-caption align-self-center"
               >
-                (+{{ user.groupIds.length - 1 }} others)
+                (+{{ recipe.group_ids.length - 3 }} others)
               </span>
             </template>
           </v-select>
@@ -41,10 +43,13 @@
             label="Kategori"
             :items="categories"
             item-title="name"
-            return-object
-            v-model="recipe.category"
+            item-value="id"
+            v-model="recipe.categoryId"
             variant="outlined"
+            :rules="[(v) => !!v || 'Kategori zorunlu alan']"
+            required
           ></v-select>
+       
         </v-col>
         <v-col cols="12" md="3">
           <v-select
@@ -52,20 +57,39 @@
             chips
             label="Porsiyon"
             :items="portions"
-            v-model="recipe.portion"
+            item-value="id"
+            item-title="name"
+            v-model="recipe.portionId"
             variant="outlined"
+            :rules="[(v) => !!v || 'Porsiyon zorunlu alan']"
+            required
           ></v-select>
         </v-col>
         <v-col cols="12">
           <v-radio-group  inline v-model="recipe.visibility">
-            <v-radio  color="success" v-for="item in visibility" :key="item.id" :label="item.name" :value="item.id"></v-radio>
+            <template v-slot:label>
+              <div>Tarifinizin <strong>görünürlüğü</strong></div>
+            </template>
+            <v-radio  color="success" label="Herkese Açık" :value="true"></v-radio>
+            <v-radio  color="success" label="Sadece Grup Üyeleri" :value="false"></v-radio>
           </v-radio-group>
         </v-col>
+        <v-col cols="12">
+          <v-radio-group  inline v-model="recipe.levelId"  :rules="[(v) => !!v || 'Zorluk seviyesi zorunlu alan']">
+            <template v-slot:label>
+              <div>Zorluk <strong>Seviyesi</strong></div>
+            </template>
+            <v-radio  color="success" v-for="item in levels" :key="item.id" :label="item.name" :value="item.id"></v-radio>
+          </v-radio-group>
+        </v-col>
+     
         <v-col cols="12" md="12">
           <v-textarea
             label="Description"
             v-model="recipe.description"
             variant="outlined"
+            :rules="[(v) => !!v || 'Açıklama zorunlu alan']"
+            required
           ></v-textarea>
         </v-col>
         <v-col cols="12" md="12">
@@ -81,10 +105,10 @@
           <v-table height="300px" fixed-header>
             <thead>
               <tr>
-                <th class="text-left">Malzeme</th>
-                <th class="text-left">Ölçü</th>
-                <th class="text-left">Birim</th>
-                <th class="text-left">
+                <th class="text-left" width="30%">Malzeme</th>
+                <th class="text-left" width="30%">Ölçü</th>
+                <th class="text-left" width="30%">Birim</th>
+                <th class="text-left" width="9%" >
                   <v-btn
                     @click="addIngredient"
                     icon="mdi-plus"
@@ -96,43 +120,46 @@
             </thead>
             <tbody class="mt-4" v-if="hasIngredients">
               <tr  v-for="item in recipe.ingredients" :key="item.id">
-                <td width="30%" class="pa-3">
+                <td class="pa-3">
                   <v-text-field
                     :autofocus="item.autofocus"
                     :id="item.id.toString()"
                     label="Malzeme"
-                    hide-details
                     required
                     variant="outlined"
                     v-model="item.type"
+                    :rules="[(v) => !!v || 'Malzemeler zorunlu alan']"
                   ></v-text-field>
                 </td>
-                <td width="30%" class="pa-3">
+                <td  class="pa-3">
                   <v-text-field
                     label="Ölçü"
-                    hide-details
                     required
                     variant="outlined"
                     v-model="item.measurement"
+                     :rules="[(v) => !!v || 'Ölçü zorunlu alan']"
                   ></v-text-field>
                 </td>
-                <td width="30%" class="pa-3">
+                <td class="pa-3">
                   <v-select
                     clearable
-                    hide-details
                     chips
                     label="Birim"
                     :items="units"
-                    v-model="item.unit"
+                    item-value="id"
+                    item-title="name"
+                    v-model="item.unitId"
                     variant="outlined"
+                     :rules="[(v) => !!v || 'Birim zorunlu alan']"
                   ></v-select>
                 </td>
-                <td width="9%" class="pa-3">
+                <td class="pa-3" style="vertical-align: baseline;">
                   <v-btn
                     @click="deleteIngredient(item.id)"
                     color="red-lighten-3"
                     variant="outlined"
                     icon="mdi-trash-can"
+                    class="mt-1"
                   >
                   </v-btn>
                 </td>
@@ -142,7 +169,7 @@
           </v-table>
         </v-col>
         <v-col cols="12" class="d-flex justify-center">
-          <v-btn color="success" @click="addRecipe">Kaydet</v-btn>
+          <v-btn color="success" @click="saveOrUpdateRecipe">Kaydet</v-btn>
         </v-col>
       </v-row>
   </v-form>
@@ -155,6 +182,7 @@ import { useAppStore } from "../stores/index";
 const store = useAppStore();
 const recipe = ref({});
 const props = defineProps(["recipe" ]);
+const recipeForm = ref();
 
 if (props.recipe) {
   recipe.value = props.recipe;
@@ -164,12 +192,16 @@ if (props.recipe) {
  
 }
 
-const categories = store.categories;
-const portions = store.portions;
-const units = store.units;
+const categories = await store.getCategories();
+const options = await store.getOptions();
+
+const portions = options?.value.portions;
+const levels = options?.value.levels;
+const units = options?.value.units;
+console.log(units)
 const visibility = store.visibility;
 const user = store.user;
-const groups = await store.fetchGroupById();
+const groups = await store.getMyGroups();
 
 const emit= defineEmits(["setIsEdit"])
 
@@ -183,6 +215,7 @@ const hasIngredients = computed(()=>{
 });
 
 async function addIngredient() {
+
   const id = Math.floor(Math.random() * 999999);
   recipe.value.ingredients.push({ type: "", autofocus: true, id });
 
@@ -195,9 +228,16 @@ async function addIngredient() {
   });
   }
 }
-function addRecipe(){
-  store.addRecipe(recipe.value);
-  emit("setIsEdit", false);
+function saveOrUpdateRecipe(){
+
+  recipeForm.value?.validate().then(async ({valid: isValid}) => {
+      if(isValid){
+       const newRecipe = await store.saveOrUpdateRecipe(recipe?.value);
+        emit("setIsEdit", false);
+        emit("newRecipe", newRecipe);
+      }
+    })
+
 }
 function deleteIngredient(id) {
   return (recipe.value.ingredients = recipe.value.ingredients.filter(
