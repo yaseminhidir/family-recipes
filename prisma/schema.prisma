@@ -86,6 +86,7 @@ model Recipe {
   level        Level        @relation(fields: [levelId], references: [id])
   levelId      Int
   createdAt    DateTime     @default(now()) 
+  tags         String?
   ingredients   Ingredient[]
   groups       GroupRecipe[]
 }

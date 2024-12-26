@@ -10,7 +10,13 @@ export default defineEventHandler(async (event) => {
         id: id, 
       },
       include: {
-        recipes: true, 
+        recipes: {
+          include:{
+            category:true,
+            level:true,
+            portion:true,
+          }
+        }, 
       },
     });
     console.log("DB CATEGORY" , category)

@@ -7,16 +7,37 @@ export default defineEventHandler(async (event) => {
   try {
     const res = await prisma.user.findFirst({
       where: {
-        id:session.user?.id,
+        id: session.user?.id,
       },
       include: {
         groups: {
-          include: { group: true } // group bilgileri dahil ediliyor
+          include: {
+            group: {
+              include: {
+                _count: {
+                  select: { users: true , recipes:true },
+                },
+               recipes:{
+                include: {
+                  recipe:{
+                    include:{
+                      category:true,
+                      level:true,
+                      portion:true,
+                    }
+                  } ,
+                },
+                take: 4,
+               }
+              },
+            },
+          },
         },
+     
       },
     });
-  
-    return { success: true, groups:res.groups};
+
+    return { success: true, groups: res.groups };
   } catch (error) {
     console.error("Error fetching groups:", error);
     return { success: false, message: error.message };

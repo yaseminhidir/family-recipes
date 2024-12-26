@@ -1,19 +1,19 @@
 <template>
     <v-app-bar class="py-2 position-fixed top-0" density="compact" flat color="white">
-      <v-app-bar-title class="logo">Aile <span>Tarifleri</span></v-app-bar-title>
+      <v-app-bar-title class="logo">Family <span>Recipes</span></v-app-bar-title>
      
       <nav class="alternate-nav">
         <NuxtLink to="/" class="menu-item" activeClass="router-link-active">
-          Anasayfa
+          Home
         </NuxtLink>
       
         <template v-if="!store.user">
           <NuxtLink
-            to="/auth/login"
+            to="/auth/register"
             class="menu-item"
             activeClass="router-link-active"
           >
-            Login
+            Register
           </NuxtLink>
         </template>
         <template v-else>
@@ -22,7 +22,7 @@
             class="menu-item"
             activeClass="router-link-active"
           >
-            Profil
+            Profile
           </NuxtLink>
         </template>
         <NuxtLink  class="menu-item" v-if="store.user" @click="store.logout">

@@ -1,47 +1,16 @@
-import {
-  doc,
-  addDoc,
-  getFirestore,
-  collection,
-  getDoc,
-  setDoc,
-  query,
-  where,
-  updateDoc,
-  getDocs,
-  documentId,
-  deleteDoc,
-} from "firebase/firestore";
+
 import { v4 as uuidv4 } from "uuid";
-import { useCollection } from "vuefire";
 import { useRouter } from "vue-router";
 
 export const useAppStore = defineStore("websiteStore", () => {
   const { loggedIn, user, clear: logout, fetch: fetchUser } = useUserSession();
   const router = useRouter();
 
-  const db = getFirestore();
-  const authUser = user;
 
-  const units = ref([
-    "Su bardağı",
-    "Çay bardağı",
-    "kase",
-    "Yemek kaşığı",
-    "Tatlı kaşığı",
-    "Çay Kaşığı",
-    "adet",
-    "gr",
-    "kg",
-    "ml",
-    "l",
-    "tutam",
-    "demet",
-  ]);
   const visibility = ref([
-    { value: null, title: "Tümü" },
-    { value: true, title: "Herkese Açık" },
-    { value: false, title: "Sadece Grup Üyeleri" },
+    { value: null, title: "All recipes" },
+    { value: true, title: "Public" },
+    { value: false, title: "Only group members" },
   ]);
   const categories = ref(null);
   const options = ref(null);
@@ -65,19 +34,7 @@ export const useAppStore = defineStore("websiteStore", () => {
     return user?.value != null && user.value.groupIds.length > 0;
   });
 
-  function recipes() {
-    return useCollection(collection(db, "recipes"), {
-      once: true,
-    });
-  }
 
-  function fetchRecipesByVisibilty(value) {
-    const res = query(
-      collection(db, "recipes"),
-      where("visibility", "==", value)
-    );
-    return useCollection(res, { once: true });
-  }
 
   async function getCategories() {
     if (categories.value != null) return categories;
@@ -124,7 +81,7 @@ export const useAppStore = defineStore("websiteStore", () => {
         console.error("Error fetching groups:", error);
         throw new Error(data.message || "Failed to fetch groups");
       }
-      console.log("store group", data.value.groups);
+      console.log("store group", data.value);
       return data.value.groups.map((item) => item.group);
     } catch (error) {
       console.error("Error in getGroupById service:", error);
@@ -185,6 +142,7 @@ export const useAppStore = defineStore("websiteStore", () => {
   };
 
   const saveGroup = async (data) => {
+    console.log(data)
     try {
       const url = data.id
         ? `/api/groups/createOrUpdate?${new URLSearchParams({
@@ -193,10 +151,10 @@ export const useAppStore = defineStore("websiteStore", () => {
         : `/api/groups/createOrUpdate`;
       const res = await $fetch(url, {
         method: "POST",
-        body: { ...data },
+        body: { name:data },
       });
       if (res.success) {
-        return res.group;
+        return res;
       } else {
         console.error("Error saving/updating group:", res.error);
         throw new Error(res.error);
@@ -261,24 +219,12 @@ export const useAppStore = defineStore("websiteStore", () => {
   }
   async function leaveGroup(groupId) {
     try {
-      const userRef = doc(db, "users", authUser.value.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        let groupIds = userData.groupIds || [];
-
-        if (groupIds.includes(groupId)) {
-          groupIds = groupIds.filter((id) => id !== groupId);
-          await updateDoc(userRef, { groupIds });
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } catch (error) {
+        const {data, error} = await useFetch("/api/groups/leaveGroup", {
+          method:"post",
+          body:{groupId}
+        })
+      } 
+    catch (error) {
       return false;
     }
   }
@@ -305,7 +251,6 @@ export const useAppStore = defineStore("websiteStore", () => {
   return {
     register,
     hasGroup,
-    recipes,
     saveOrUpdateRecipe,
     getCategory,
     getOptions,
@@ -313,11 +258,9 @@ export const useAppStore = defineStore("websiteStore", () => {
     getGroupById,
     getRecipeById,
     getMyGroups,
-    units,
     user,
     logout,
     login,
-    fetchRecipesByVisibilty,
     getMyRecipes,
     visibility,
     saveGroup,

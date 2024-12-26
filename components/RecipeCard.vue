@@ -1,7 +1,6 @@
 <template>
- 
     <v-card max-width="400" class="recipe-card elevation-0" style="height:100%">
-      <nuxt-link  :to="store.user ? '/admin/recipe/' + recipe.id : '/recipe/' + recipe.id"  class="post-preview card-link">
+      <nuxt-link  :to="store.user ? '/admin/recipe/' + recipe.id : '/recipe/' + recipe.id"  class="post-preview card-link" :title="recipe.title">
       <div class="position-relative mb-3">
         <v-img
           class="align-end text-white recipe-img"
@@ -33,7 +32,11 @@
         <div>{{ recipe.username }}</div>
       </v-card-text>
     </nuxt-link>
-      <v-card-actions class="d-flex justify-end">
+      <v-card-actions class="d-flex justify-space-between">
+        <div class="d-flex" v-if="recipe.tags">
+          <v-chip class="ms-2"  v-for="(tag, index) in recipe.tags.slice(0, 3)"  :key="index" prepend-icon="mdi-tag" color="green" label >{{tag}}</v-chip>
+        </div>
+    
         <v-btn color="#FF6F61" text="Share" @click="shareWhatsapp"></v-btn>
       </v-card-actions>
     </v-card>
@@ -43,7 +46,8 @@
 <script setup>
 import moment from "moment";
 
-const { recipe , category } = defineProps(["recipe" , "category"]);
+let { recipe } = defineProps(["recipe" ]);
+console.log("RECIPE CARD", recipe)
 const store = useAppStore();
 const options = await store.getOptions();
 
@@ -53,6 +57,7 @@ const level = computed(()=>{
 const formattedDate = computed(() => {
   return moment(recipe.createdAt).format("DD.MM.YYYY"); // İstenen format
 });
+
 function shareWhatsapp() {
   const title = recipe.title || 'No Title';
   const description = recipe.description || 'No Description';

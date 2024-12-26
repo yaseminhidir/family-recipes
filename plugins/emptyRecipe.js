@@ -12,6 +12,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     username: "",
     visibility:true,
     levelId:null,
+    tags:[],
   };
   return {
     provide: {

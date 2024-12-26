@@ -1,9 +1,17 @@
 <template>
-  <v-row v-if="recipe" class="justify-center">
+  <v-row v-if="loading" class="justify-center">
+    <v-col cols="8" class="text-center">
+      <v-progress-circular indeterminate color="primary" />
+    </v-col>
+  </v-row>
+  <v-row v-else class="justify-center">
     <v-col cols="8">
       <hr />
-      <div class="d-flex justify-space-between">
+      <div class="d-flex justify-space-between mt-2">
         <span class="text-body-2">{{ recipe.category?.name }}</span>
+        <div class="d-flex justify-center">
+          <v-chip class="ms-2"  v-for="(tag, index) in recipe.tags"  :key="index" prepend-icon="mdi-tag" color="green" label >{{tag}}</v-chip>
+        </div>
         <span class="text-body-2">{{ formattedDate }}</span>
       </div>
     </v-col>
@@ -14,8 +22,9 @@
       <div class="position-relative">
         <v-img
           class="align-end text-white recipe-img"
-          height="200"
+          height="300"
           :src="recipe.image"
+          :alt="recipe.title"
           cover
         >
         </v-img>
@@ -76,12 +85,16 @@ import moment from "moment";
 const store = useAppStore();
 
 const { recipe } = defineProps(["recipe"]);
+
+
 const formattedDate = computed(() => {
-  return moment(recipe?.createdAt).format("DD.MM.YYYY"); // İstenen format
+  return moment(recipe?.createdAt).format("DD.MM.YYYY");
 });
 const options = await store.getOptions();
 
 const level = computed(()=>{
     return options.levels?.filter(x=>x.id == recipe.level)[0]
 });
+
+
 </script>

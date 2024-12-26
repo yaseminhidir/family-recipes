@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
         group: { connect: { id: groupId } },
       })),
     },
+    tags:JSON.stringify(body.tags),
     ingredients: {
       create: body.ingredients.map((ingredient: any) => ({
         type: ingredient.type,

@@ -21,7 +21,10 @@
         label="Password"
         type="password"
       ></v-text-field>
-      <v-btn class="mt-2" @click="store.register(user)" block>Submit</v-btn>
+      <p class="text-subtitle-1 mb-4">
+        Zaten hesabın var mı? <a href="/auth/login" class="font-weight-bold" >Giriş Yap</a>
+      </p>
+      <v-btn class="mt-2" @click="store.register(user)" block>Register</v-btn>
     </v-form>
   </v-sheet>
 </template>

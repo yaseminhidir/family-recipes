@@ -44,17 +44,9 @@ export default defineNuxtConfig({
         );
       });
     },
-    "nuxt-vuefire",
     "nuxt-auth-utils"
   ],
 
-  vuefire: {
-    config: api_key,
-    auth: {
-      enabled: true,
-      sessionCookie: true, // AUTHENTİCATİON BOTH WORKS FOR BACKEND AND FRONTEND
-    },
-  },
   vite: {
     vue: {
       template: {

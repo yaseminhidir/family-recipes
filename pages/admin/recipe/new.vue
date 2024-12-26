@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AdminRecipeForm ></AdminRecipeForm>
+    <AdminRecipeForm></AdminRecipeForm>
   </div>
 </template>
 <script setup>

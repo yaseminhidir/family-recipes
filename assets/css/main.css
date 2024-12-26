@@ -2,11 +2,7 @@ html, body {
   font-family: "Raleway", serif !important;
 }
 
-@media (min-width: 1920px) {
-  .v-container {
-      max-width: 1320px !important;
-  }
-}
+
 /* .v-sheet {
   background-color: rgb(255 255 255 / 51%) !important;
   border: 1px solid rgb(173 247 49 / 61%) !important;

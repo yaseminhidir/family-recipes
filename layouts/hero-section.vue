@@ -14,11 +14,11 @@
                     class="h-100 d-flex flex-column justify-center"
                   >
                     <v-list-item
-                      title="Grup Oluştur"
+                      title="Create a group"
                       class="hero-subtitle"
                     ></v-list-item>
                     <v-list-item
-                      title="Tariflerini Kaydet"
+                      title="Save your recipes"
                       class="hero-subtitle"
                     ></v-list-item>
                   </v-list>
@@ -35,7 +35,6 @@
             </v-row>
           </v-container>
           <div class="category-container">
-            ??????????????????
             <v-card>
               <v-card-item>
                 <v-row>
@@ -47,11 +46,12 @@
                   >
                     <v-row>
                       <v-col cols="12" md="5">
-                        <nuxt-link :to="'category/' + category.id" class="post-preview card-link">
+                        <nuxt-link :to="'category/' + category.id" class="post-preview card-link" :title="category.name">
                         <v-img
                           class="rounded"
                           height="150"
                           :src="category.image"
+                          :alt="category.name"
                           cover
                         >
                       </v-img>
@@ -59,9 +59,15 @@
                       
                       </v-col>
                       <v-col cols="12" md="7" class="d-flex align-center">
-                        <p class="text-h6 font-weight-bold">
+                        <div>
+                          <p class="text-h6 text-uppercase">
                           {{ category.name }}
-                        </p>
+                          </p>
+                          <p class="text-body-1">
+                            More than {{ category._count.recipes }} Recipes
+                          </p>
+                        </div>
+                       
                       </v-col>
                     </v-row>
                   </v-col>
@@ -93,8 +99,12 @@
 <script setup>
 import { useAppStore } from "../stores/index";
 
-const store = useAppStore();
-const categories =await store.getCategories();
+const { data:categories, error } = await useFetch("/api/categories",{
+  onResponse({response}){
+   response._data=response._data.data
+  }
+});
+
 
 const socials=ref([
         {icon:'mdi-facebook', link: 'facebook.com'},
