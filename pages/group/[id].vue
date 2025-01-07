@@ -8,21 +8,29 @@
               View Members
             </v-btn>
           </template>
-          <v-list v-if="groupMembers.count>0">
+          <v-list>
             <v-list-item v-for="member in groupMembers" :key="member.firstName">
-              <v-list-item-title>
+              <v-list-item-title
+                class="d-flex justify-space-between align-center"
+              >
                 <nuxt-link
                   class="nuxt-link text-center me-3"
                   color="light-green-darken-4"
                   :to="'/profile/' + member.firstName"
-                  >{{ member.firstName }}</nuxt-link
-                >
+                  >{{ member.firstName }}
+                  <span v-if="member.id === store.user.id">(you)</span>
+                </nuxt-link>
+
+                <v-btn
+                  v-if="isOwner && member.id != store.user.id"
+                  @click="removeUserFromGroup(member.id)"
+                  class="ms-2"
+                  color="red"
+                  icon="mdi-minus"
+                  size="small"
+                  variant="text"
+                ></v-btn>
               </v-list-item-title>
-            </v-list-item>
-          </v-list>
-          <v-list v-else>
-            <v-list-item>
-              <p>There are no members yet.</p>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -30,7 +38,7 @@
       <v-col cols="12" sm="4" class="d-flex justify-end">
         <div class="me-2 text-center">
           <v-btn-group
-                v-if="isMember"
+            v-if="isMember"
             density="comfortable"
             color="green"
             prepend-icon="mdi-plus"
@@ -58,7 +66,8 @@
                     <v-divider class="mb-4"></v-divider>
                     <v-card-text>
                       <div class="text-medium-emphasis mb-1">
-                        This invitation is only valid for 3 days, if it is not used within 3 days, you must create a new invitation.
+                        This invitation is only valid for 3 days, if it is not
+                        used within 3 days, you must create a new invitation.
                       </div>
 
                       <v-btn
@@ -67,7 +76,6 @@
                         text="Davet Kodu Oluştur"
                         @click="createInvitation"
                         variant="text"
-                   
                       ></v-btn>
                       <template v-if="inviteLink">
                         <div class="my-2">
@@ -106,7 +114,7 @@
           variant="text"
           color="red"
           @click="leaveGroup"
-          v-if="isMember"
+          v-if="isMember && !isOwner"
         >
           Leave Group
         </v-btn>
@@ -139,7 +147,7 @@ const router = useRouter();
 const inviteLink = ref("");
 const snackbar = ref(false);
 
-const { data: group } = await useFetch(
+const { data: group, refresh } = await useFetch(
   `/api/groups/getGroup?id=${route.params.id}`,
   {
     onResponse({ response }) {
@@ -147,15 +155,31 @@ const { data: group } = await useFetch(
     },
   }
 );
+console.log("GRUP DETAY", group.value);
 
-const groupMembers = group.value.users.map((item) => item.user);
-
-const isMember = computed(() => {
-  return groupMembers.some((member) => member.id === store.user?.id);
+const groupMembers = computed(() => {
+  return group.value.users.map((item) => item.user);
 });
 
+const isMember = computed(() => {
+  return groupMembers.value.some((member) => member.id === store.user?.id);
+});
+
+const ownerUser = computed(() => {
+  return group.value?.users?.find((member) => member.isOwner) || null;
+});
+
+const isOwner = computed(() => {
+  return ownerUser.value.userId == store.user?.id ? true : false;
+});
+
+console.log("store user", store.user.id);
+console.log("ownerUser", ownerUser.value);
+console.log("isOwner computed", isOwner.value);
+console.log("auth User", store.user?.id !== ownerUser?.value.userId);
+
 let recipesResult = group.value.recipes.map((item) => item.recipe);
-recipesResult.value=mapRecipeData(recipesResult)
+recipesResult.value = mapRecipeData(recipesResult);
 
 function generateInviteCode() {
   const inviteCode = uuidv4();
@@ -203,7 +227,7 @@ async function leaveGroup() {
   try {
     const { data, error } = await useFetch("/api/groups/leaveGroup", {
       method: "post",
-      body: { groupId:group.value.id },
+      body: { groupId: group.value.id },
     });
     navigateTo({
       path: "/admin",
@@ -213,6 +237,21 @@ async function leaveGroup() {
   }
 }
 
+const removeUserFromGroup = async (memberId) => {
+  try {
+    const { data } = await useFetch("/api/groups/removeUserFromGroup", {
+      method: "POST",
+      body: { groupId: group.value.id, userId: memberId },
+    });
+    if (data.value.success) {
+      refresh();
+    }
+    console.log(data.value);
+  } catch (error) {
+    console.error("Error in saveOrUpdateGroup function:", error);
+    throw error;
+  }
+};
 </script>
 
 <style>

@@ -1,5 +1,6 @@
 <template>
     <v-card max-width="400" class="recipe-card elevation-0" style="height:100%">
+      
       <nuxt-link  :to="store.user ? '/admin/recipe/' + recipe.id : '/recipe/' + recipe.id"  class="post-preview card-link" :title="recipe.title">
       <div class="position-relative mb-3">
         <v-img
@@ -17,22 +18,25 @@
         <span class="text-body-2 text-uppercase">{{ recipe.level ? level?.name : "" }}</span>
         <span class="text-body-2">{{ formattedDate }}</span>
       </div>
-      <v-card-title>
+      <v-card-title style="white-space:normal">
         <v-row>
-          <v-col cols="6">
-            {{ recipe.title }} 
+          <v-col cols="7" xl="8" lg="7" sm="6" md="6">
+            <h3 class="text-body-2">
+              {{ recipe.title }} 
+            </h3>
           </v-col>
-          <v-col cols="6" class="text-end">
-            {{ recipe.portion.name }} kişilik
+          <v-col cols="5" xl="4" lg="5" sm="6" md="6" class="text-end">
+            <span class="text-body-2 text-disabled">{{ recipe.portion.name }} kişilik</span>
           </v-col>
         </v-row>
      
       </v-card-title>
       <v-card-text>
-        <div>{{ recipe.username }}</div>
+      
+        <span class="text-uppercase text-disabled">{{ recipe.user?.firstName }} {{ recipe.user?.lastName }}</span>
       </v-card-text>
     </nuxt-link>
-      <v-card-actions class="d-flex justify-space-between">
+      <v-card-actions class="d-block d-md-flex justify-space-between">
         <div class="d-flex" v-if="recipe.tags">
           <v-chip class="ms-2"  v-for="(tag, index) in recipe.tags.slice(0, 3)"  :key="index" prepend-icon="mdi-tag" color="green" label >{{tag}}</v-chip>
         </div>
@@ -47,7 +51,7 @@
 import moment from "moment";
 
 let { recipe } = defineProps(["recipe" ]);
-console.log("RECIPE CARD", recipe)
+
 const store = useAppStore();
 const options = await store.getOptions();
 

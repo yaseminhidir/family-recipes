@@ -7,7 +7,8 @@
       variant="outlined"
       v-model="select"
     ></v-select>
-    <RecipeList :recipes="filteredRecipes"></RecipeList>
+    <RecipeList   v-if="filteredRecipes.length > 0" :recipes="filteredRecipes"></RecipeList>
+     <EmptyRecipes v-else></EmptyRecipes>
   </template>
   <template v-else>
     <EmptyRecipes ></EmptyRecipes>
@@ -15,6 +16,7 @@
 </template>
 
 <script setup>
+
 definePageMeta({
   layout: "profile",
 });

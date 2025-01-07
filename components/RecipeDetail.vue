@@ -8,7 +8,7 @@
     <v-col cols="8">
       <hr />
       <div class="d-flex justify-space-between mt-2">
-        <span class="text-body-2">{{ recipe.category?.name }}</span>
+        <span class="text-body-2">{{ recipe?.category?.name }}</span>
         <div class="d-flex justify-center">
           <v-chip class="ms-2"  v-for="(tag, index) in recipe.tags"  :key="index" prepend-icon="mdi-tag" color="green" label >{{tag}}</v-chip>
         </div>
@@ -34,7 +34,7 @@
     <v-col cols="4">
       <v-list density="compact">
         <v-list-item>
-          <h2 class="text-uppercase text-h6">Malzemeler</h2>
+          <h2 class="text-uppercase text-h6">Ingredients</h2>
         </v-list-item>
         <v-list-item
           v-for="(ingredient, index) in recipe?.ingredients"
@@ -55,18 +55,18 @@
     <v-col cols="8">
       <div class="py-2 border-b-md border-warning d-flex">
         <div>
-            <span class="text-h6 text-uppercase"> PORSİYON </span>
+            <span class="text-h6 text-uppercase"> PORTION </span>
             <span class="text-h6 font-weight-light"> : {{ recipe.portion?.name }} </span>
         </div>
         <div class="ms-5">
-            <span class="text-h6 text-uppercase"> Kategori </span>
+            <span class="text-h6 text-uppercase"> CATEGORY </span>
             <span class="text-h6 font-weight-light">
             : {{ recipe.category?.name }}
             </span>
         </div>
       </div>
       <div class="py-2 border-b-md border-warning mb-3">
-        <span class="text-h6 text-uppercase"> Zorluk </span>
+        <span class="text-h6 text-uppercase"> LEVEL </span>
         <span class="text-h6 font-weight-light"> : {{ recipe.level ? recipe.level?.name : "" }} </span>
       </div>
       <p>
@@ -84,7 +84,10 @@
 import moment from "moment";
 const store = useAppStore();
 
+const emit= defineEmits(["deleteRecipe"]);
+
 const { recipe } = defineProps(["recipe"]);
+const snackbar = ref(false);
 
 
 const formattedDate = computed(() => {

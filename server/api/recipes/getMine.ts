@@ -17,6 +17,12 @@ export default defineEventHandler(async (event) => {
       category:true,
       level:true,
       portion:true,
+      user:{
+        select:{
+          firstName:true,
+          lastName:true
+        }
+      }
     },
   });
   console.log("recipesres",recipes)

@@ -1,11 +1,9 @@
-
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "vue-router";
 
 export const useAppStore = defineStore("websiteStore", () => {
   const { loggedIn, user, clear: logout, fetch: fetchUser } = useUserSession();
   const router = useRouter();
-
 
   const visibility = ref([
     { value: null, title: "All recipes" },
@@ -33,8 +31,6 @@ export const useAppStore = defineStore("websiteStore", () => {
   const hasGroup = computed(() => {
     return user?.value != null && user.value.groupIds.length > 0;
   });
-
-
 
   async function getCategories() {
     if (categories.value != null) return categories;
@@ -139,31 +135,7 @@ export const useAppStore = defineStore("websiteStore", () => {
       console.error("Error in getMyRecipes function:", error);
       throw error;
     }
-  };
-
-  const saveGroup = async (data) => {
-    console.log(data)
-    try {
-      const url = data.id
-        ? `/api/groups/createOrUpdate?${new URLSearchParams({
-            id: data.id,
-          })}`
-        : `/api/groups/createOrUpdate`;
-      const res = await $fetch(url, {
-        method: "POST",
-        body: { name:data },
-      });
-      if (res.success) {
-        return res;
-      } else {
-        console.error("Error saving/updating group:", res.error);
-        throw new Error(res.error);
-      }
-    } catch (error) {
-      console.error("Error in saveOrUpdateGroup function:", error);
-      throw error;
-    }
-  };
+  }
 
   const createInviteCode = async (groupId) => {
     const tokenData = {
@@ -193,38 +165,35 @@ export const useAppStore = defineStore("websiteStore", () => {
     try {
       const { data, error } = await useFetch("/api/groups/isTokenValid", {
         method: "post",
-        body: {token},
+        body: { token },
       });
       if (error.value) {
         throw new Error("Error isTokenValid link:", error);
       }
-     return data.value;
-   
+      return data.value;
     } catch (error) {
       console.error("Error in isTokenValid function:");
       throw error;
     }
   }
   async function joinGroup(token) {
-    try{
-      const {data, error} = await useFetch("/api/groups/joinGroup", {
-        method:"post",
-        body:{token}
-      })
-      return data.value.data
-    }
-    catch(error){
-      console.log(error)
+    try {
+      const { data, error } = await useFetch("/api/groups/joinGroup", {
+        method: "post",
+        body: { token },
+      });
+      return data.value.data;
+    } catch (error) {
+      console.log(error);
     }
   }
   async function leaveGroup(groupId) {
     try {
-        const {data, error} = await useFetch("/api/groups/leaveGroup", {
-          method:"post",
-          body:{groupId}
-        })
-      } 
-    catch (error) {
+      const { data, error } = await useFetch("/api/groups/leaveGroup", {
+        method: "post",
+        body: { groupId },
+      });
+    } catch (error) {
       return false;
     }
   }
@@ -234,7 +203,10 @@ export const useAppStore = defineStore("websiteStore", () => {
       method: "post",
       body: user,
     });
-    fetchUser();
+    if (res.success) {
+      fetchUser();
+      router.push("/auth/login");
+    }
   }
   async function login(user) {
     const res = await $fetch("/api/login", {
@@ -263,7 +235,6 @@ export const useAppStore = defineStore("websiteStore", () => {
     login,
     getMyRecipes,
     visibility,
-    saveGroup,
     createInviteCode,
     isTokenValid,
     joinGroup,

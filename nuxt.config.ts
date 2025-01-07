@@ -23,6 +23,10 @@ export default defineNuxtConfig({
           href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swa",
         },
       ],
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+     
+      ],
       script: [{ src: "https://accounts.google.com/gsi/client" }],
     },
   },

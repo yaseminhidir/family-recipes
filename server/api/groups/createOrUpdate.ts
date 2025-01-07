@@ -4,22 +4,29 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const query = getQuery(event);
-  const id = Number(query.id);
+  const id = Number(body.id);
   const session = await requireUserSession(event);
   const data = {
     name: body.name,
     users: {
-      create: [{ userId: session.user.id }],
+      create: [{ userId: session.user.id , isOwner:true }],
     },
   };
   try {
-    if (query.id) {
-      const updatedGroup = await prisma.group.update({
-        where: { id: parseInt(query.id as string) },
-        data: data,
+    if (body.id) {
+      const deleteGroupUser = await prisma.groupUser.deleteMany({
+        where: {
+          groupId: id,
+        },
       });
-      return { success: true, group: updatedGroup };
+      const updatedGroup = await prisma.group.update({
+        where: { id: id },
+        data: data,
+        include: {
+          users: true,
+        },
+      });
+      return { success: true, message:"Grup ismi başarılı bir şekilde güncellendi", group: updatedGroup };
     }
     const newGroup = await prisma.group.create({
       data,

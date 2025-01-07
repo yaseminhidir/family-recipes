@@ -11,29 +11,32 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         groups: {
+          orderBy: {
+            groupId: "desc",
+          },
           include: {
             group: {
               include: {
                 _count: {
-                  select: { users: true , recipes:true },
+                  select: { users: true, recipes: true },
                 },
-               recipes:{
-                include: {
-                  recipe:{
-                    include:{
-                      category:true,
-                      level:true,
-                      portion:true,
-                    }
-                  } ,
+                recipes: {
+                  include: {
+                    recipe: {
+                      include: {
+                        category: true,
+                        level: true,
+                        portion: true,
+                      },
+                    },
+                  },
+                  take: 4,
                 },
-                take: 4,
-               }
+               
               },
             },
           },
         },
-     
       },
     });
 

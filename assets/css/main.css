@@ -77,8 +77,7 @@ text-decoration: none;
   background: linear-gradient(90deg, rgb(72 112 6 / 61%) 0%, rgba(199, 217, 169, 0.61) 61%);
   background-size: cover;
   width: 100vw;
-  height: 91vh;
-  margin-bottom:100px
+
 }
 .hero-caption {
   font-size: 146px;
@@ -166,5 +165,14 @@ text-decoration: none;
     right:0;
     transform: translateY(-50%);
     width:75%;
+  }
+  .hero-section{
+    margin-bottom:100px;
+    height: 91vh;
+
+  }
+  .hero-section .content-container{
+    height: 100vh;
+
   }
 }
